@@ -1,0 +1,43 @@
+import time
+import serial
+
+PH_OFFSET = -1.00
+DHT_SENSOR_PIN = '2'  # Pin connected to the DHT sensor
+PH_SENSOR_PIN = 'A0'  # Analog pin connected to the pH sensor
+
+# Define the serial port
+serial_port = '/dev/ttyACM0'  # Change this to match your Arduino's port
+baud_rate = 9600
+
+# Establish serial connection
+ser = serial.Serial(serial_port, baud_rate, timeout=1)
+
+# Function to read pH value from Arduino
+def read_ph_value():
+    ser.write(b'B')  # Send command to Arduino to request analog value
+    raw_data = ser.readline().strip().decode('utf-8')
+    ph_value = float(raw_data)
+    return ph_value
+
+# Function to read DHT sensor data from Arduino
+def read_dht_data():
+    ser.write(b'A')  # Send command to Arduino to request DHT data
+    humidity = float(ser.readline().strip().decode('utf-8'))
+    temperature = float(ser.readline().strip().decode('utf-8'))
+    return humidity, temperature
+
+# Main loop
+while True:
+    # Read pH value
+    ph_value = read_ph_value()
+    
+    # Read DHT sensor data
+    humidity, temperature = read_dht_data()
+    
+    # Print sensor data
+    print("pH:", ph_value)
+    print("Humidity:", humidity, "%")
+    print("Temperature:", temperature, "°C")
+    
+    # Delay
+    time.sleep(2)
